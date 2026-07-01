@@ -1,0 +1,402 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .chat-root {
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #0f0c1a 0%, #1a0f2e 40%, #0d1a2e 100%);
+    font-family: 'Inter', system-ui, sans-serif;
+    border-radius: 16px;
+  }
+
+  .chat-card {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(18, 14, 32, 0.72);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(255,255,255,0.04) inset,
+      0 1px 0 rgba(255,255,255,0.08) inset;
+    display: flex;
+    flex-direction: column;
+    height: 560px;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6c47ff 0%, #3b82f6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(108,71,255,0.4);
+  }
+
+  .header-info { flex: 1; }
+
+  .header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f0eeff;
+    letter-spacing: -0.2px;
+  }
+
+  .header-sub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e, 0 0 12px rgba(34,197,94,0.4);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 6px #22c55e, 0 0 12px rgba(34,197,94,0.4); }
+    50% { box-shadow: 0 0 10px #22c55e, 0 0 22px rgba(34,197,94,0.6); }
+  }
+
+  .status-text {
+    font-size: 12px;
+    color: #22c55e;
+    font-weight: 500;
+  }
+
+  .chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.08) transparent;
+  }
+
+  .chat-window::-webkit-scrollbar { width: 4px; }
+  .chat-window::-webkit-scrollbar-track { background: transparent; }
+  .chat-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+  .msg-row {
+    display: flex;
+    flex-direction: column;
+    animation: slide-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-row.user { align-items: flex-end; }
+  .msg-row.bot  { align-items: flex-start; }
+
+  .bubble {
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .bubble.user {
+    background: linear-gradient(135deg, #6c47ff 0%, #4f46e5 60%, #3b82f6 100%);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 16px rgba(108,71,255,0.35);
+  }
+
+  .bubble.bot {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e8e4f8;
+    border-bottom-left-radius: 4px;
+  }
+
+  .sentiment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-positive {
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.25);
+    color: #4ade80;
+  }
+
+  .badge-negative {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #f87171;
+  }
+
+  .badge-neutral {
+    background: rgba(148,163,184,0.15);
+    border: 1px solid rgba(148,163,184,0.25);
+    color: #94a3b8;
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    max-width: 72px;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    animation: bounce 1.3s ease-in-out infinite;
+  }
+
+  .dot:nth-child(2) { animation-delay: 0.18s; }
+  .dot:nth-child(3) { animation-delay: 0.36s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); background: rgba(255,255,255,0.3); }
+    40% { transform: translateY(-7px); background: rgba(168,139,255,0.85); }
+  }
+
+  .chat-input-bar {
+    padding: 0.9rem 1rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.18);
+  }
+
+  #msg-input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #f0eeff;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: none;
+    height: 42px;
+    line-height: 1.4;
+  }
+
+  #msg-input::placeholder { color: rgba(255,255,255,0.28); }
+
+  #msg-input:focus {
+    border-color: rgba(108,71,255,0.6);
+    background: rgba(255,255,255,0.09);
+    box-shadow: 0 0 0 3px rgba(108,71,255,0.12);
+  }
+
+  #send-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #6c47ff 0%, #4f46e5 100%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    box-shadow: 0 4px 14px rgba(108,71,255,0.45);
+  }
+
+  #send-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(108,71,255,0.55); }
+  #send-btn:active { transform: scale(0.95); }
+  #send-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  #send-btn svg { width: 18px; height: 18px; }
+
+  @media (max-width: 520px) {
+    .chat-root { padding: 0; border-radius: 0; min-height: 100%; }
+    .chat-card { border-radius: 0; height: 100vh; max-width: 100%; }
+  }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Sentiment AI — glassmorphic dark chat interface with sentiment-labeled bot responses</h2>
+
+<div class="chat-root">
+  <div class="chat-card">
+
+    <div class="chat-header">
+      <div class="avatar">🤖</div>
+      <div class="header-info">
+        <div class="header-title">Sentiment AI</div>
+        <div class="header-sub">
+          <span class="status-dot"></span>
+          <span class="status-text">Online</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-window" id="chat-window">
+      <div class="msg-row bot">
+        <div class="bubble bot">Hey! I'm Sentiment AI. Tell me what's on your mind — I'll analyze the emotional tone of your messages.</div>
+        <span class="sentiment-badge badge-positive">😊 Positive</span>
+      </div>
+    </div>
+
+    <div class="chat-input-bar">
+      <input id="msg-input" type="text" placeholder="Type a message…" autocomplete="off" />
+      <button id="send-btn" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  const win = document.getElementById('chat-window');
+  const input = document.getElementById('msg-input');
+  const btn = document.getElementById('send-btn');
+
+  async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+  // ... add user bubble, show typing ...
+
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text })
+  });
+  const { reply, sentiment } = await res.json();
+  addBotBubble(reply, sentiment); // sentiment: "positive" | "negative" | "neutral"
+}
+
+  let idx = 0;
+
+  const badgeMeta = {
+    positive: { cls: 'badge-positive', label: '😊 Positive' },
+    negative: { cls: 'badge-negative', label: '😔 Negative' },
+    neutral:  { cls: 'badge-neutral',  label: '😐 Neutral'  },
+  };
+
+  function scrollDown() {
+    setTimeout(() => win.scrollTo({ top: win.scrollHeight, behavior: 'smooth' }), 60);
+  }
+
+  function addUserBubble(text) {
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `<div class="bubble user">${escHtml(text)}</div>`;
+    win.appendChild(row);
+    scrollDown();
+  }
+
+  function showTyping() {
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    row.id = 'typing-row';
+    row.innerHTML = `<div class="typing-indicator"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+    win.appendChild(row);
+    scrollDown();
+    return row;
+  }
+
+  function addBotBubble(text, sentiment) {
+    const typingRow = document.getElementById('typing-row');
+    if (typingRow) typingRow.remove();
+
+    const meta = badgeMeta[sentiment] || badgeMeta.neutral;
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    row.innerHTML = `
+      <div class="bubble bot">${escHtml(text)}</div>
+      <span class="sentiment-badge ${meta.cls}">${meta.label}</span>
+    `;
+    win.appendChild(row);
+    scrollDown();
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.disabled = true;
+    btn.disabled = true;
+
+    addUserBubble(text);
+    showTyping();
+
+    const resp = responses[idx % responses.length];
+    idx++;
+
+    setTimeout(() => {
+      addBotBubble(resp.text, resp.sentiment);
+      input.disabled = false;
+      btn.disabled = false;
+      input.focus();
+    }, 1400 + Math.random() * 600);
+  }
+
+  btn.addEventListener('click', sendMessage);
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+})();
+</script>
